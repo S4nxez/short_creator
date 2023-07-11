@@ -15,7 +15,17 @@ wav_file = "example.wav"
 
 os.system(f"ffmpeg -i {audio_file} {wav_file}")
 
-with sr.AudioFile(wav_file) as source:
+hola = sr.AudioFile('example.wav')
+with hola as source:
     audio = r.record(source)
-    text = r.recognize_google(audio)
-    print(text)
+try:
+    s=r.recognize_google(audio)
+    print("Texto: "+s)
+except Exception as e:
+    print("Excepcion: "+str(e))
+
+
+#with sr.AudioFile(wav_file) as source:
+#   audio = r.record(source)
+#   text = r.recognize_google(audio)
+#   print(text)
