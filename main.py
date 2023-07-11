@@ -1,24 +1,26 @@
 import moviepy.editor as mp
 import speech_recognition as sr
 import os
-
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
 
 name = "sample.mp4"
-# Cargamos el fichero .mp4
-clip = mp.VideoFileClip(name)
-# Lo escribimos como audio y `.mp3`
-clip.audio.write_audiofile("transformado_a.mp3")
+audio_file = "./cache/transformado_a.mp3"
+path = "./cache/example.wav"
+
+if not os.path.exists(name):
+    print("No se encontró el video")
+if not os.path.exists(audio_file):
+    clip = mp.VideoFileClip(name)  # Cargamos el fichero .mp4
+    clip.audio.write_audiofile(audio_file)  # Lo escribimos como audio y `.mp3`
+if not os.path.exists(path):
+    os.system(f"ffmpeg -i {audio_file} {path}")
 
 r = sr.Recognizer()
 
-audio_file = "transformado_a.mp3"
-path = "example.wav"
 
-os.system(f"ffmpeg -i {audio_file} {path}")
 # a function to recognize speech in the audio file
-# so that we don't repeat ourselves in in other functions
+# so that we don't repeat ourselves in other functions
 def transcribe_audio(path):
     # use the audio file as the audio source
     with sr.AudioFile(path) as source:
@@ -26,6 +28,7 @@ def transcribe_audio(path):
         # try converting it to text
         text = r.recognize_google(audio_listened)
     return text
+
 
 # a function that splits the audio file into chunks on silence
 # and applies speech recognition
@@ -36,13 +39,13 @@ def get_large_audio_transcription_on_silence(path):
     sound = AudioSegment.from_file(path)
     # split audio sound where silence is 500 miliseconds or more and get chunks
     chunks = split_on_silence(sound,
-        # experiment with this value for your target audio file
-        min_silence_len = 500,
-        # adjust this per requirement
-        silence_thresh = sound.dBFS-14,
-        # keep the silence for 1 second, adjustable as well
-        keep_silence=500,
-    )
+                              # experiment with this value for your target audio file
+                              min_silence_len=500,
+                              # adjust this per requirement
+                              silence_thresh=sound.dBFS - 14,
+                              # keep the silence for 1 second, adjustable as well
+                              keep_silence=500,
+                              )
     folder_name = "audio-chunks"
     # create a directory to store the audio chunks
     if not os.path.isdir(folder_name):
@@ -65,5 +68,6 @@ def get_large_audio_transcription_on_silence(path):
             whole_text += text
     # return the text for all chunks detected
     return whole_text
+
 
 print(get_large_audio_transcription_on_silence(path))
